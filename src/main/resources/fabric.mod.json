@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "villager-milk-growth",
+  "version": "${version}",
+  "name": "Villager Milk Growth",
+  "description": "Give milk to baby villagers to help them grow. Each bucket advances growth by five minutes.",
+  "authors": [
+    "Braian"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "mixins": [
+    "villager-milk-growth.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "${minecraft}",
+    "java": ">=25"
+  },
+  "breaks": {
+    "braian-qol": "<=1.0.1"
+  }
+}

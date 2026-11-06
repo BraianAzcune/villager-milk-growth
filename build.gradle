@@ -1,0 +1,72 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+def apiVersions = [
+    '26.1': '0.155.3+26.1.2',
+    '26.1.1': '0.155.3+26.1.2',
+    '26.1.2': '0.155.3+26.1.2',
+    '26.2': '0.161.0+26.2',
+    '26.3': '0.165.2+26.3'
+]
+if (!apiVersions.containsKey(minecraft_version)) {
+    throw new GradleException("Unsupported test version: ${minecraft_version}")
+}
+version = "${mod_version}+mc${minecraft_version}"
+group = 'dev.braian.villagermilkgrowth'
+layout.buildDirectory = layout.projectDirectory.dir("build/${minecraft_version}")
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${apiVersions[minecraft_version]}"
+}
+
+processResources {
+    inputs.properties(version: project.version, minecraft: minecraft_version)
+    filesMatching('fabric.mod.json') {
+        expand version: project.version, minecraft: minecraft_version
+    }
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+    withSourcesJar()
+}
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+    options.encoding = 'UTF-8'
+}
+
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = 'villager-milk-growth-test'
+        enableGameTests = true
+        enableClientGameTests = true
+        eula = true
+    }
+}
+
+// Adapt test API renames in 26.1 and particle packet records in 26.3.
+// Production uses exactly the same source for every supported version.
+def prepareGameTests = tasks.register('prepareGameTests', Sync) {
+    from('src/gametest/java')
+    into(layout.buildDirectory.dir('generated/gametest'))
+    inputs.property('minecraft', minecraft_version)
+    inputs.file('build.gradle')
+    if (minecraft_version.startsWith('26.1')) {
+        filter { line -> line.replace('EntityTypes', 'EntityType').replace('mc.gui.screen()', 'mc.screen').replace('mundo.getConnection().waitForChunksRender()', 'mundo.getClientLevel().waitForChunksRender()') }
+    }
+    if (minecraft_version == '26.3') {
+        filter { line -> line.replace('packet.getParticle()', 'packet.particle()').replace('packet.getCount()', 'packet.count()') }
+    }
+}
+sourceSets.gametest.java.setSrcDirs([prepareGameTests, minecraft_version.startsWith('26.1') ? 'src/test-support/26.1' : 'src/test-support/26.2'])
+jar {
+    from('LICENSE')
+}
+
+
+
+

@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "dev.braian.villagermilkgrowth.client.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "ParticulasObserverMixin",
+    "SonidoObserverMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
