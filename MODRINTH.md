@@ -6,3 +6,4 @@ Returns the empty bucket in survival. Includes green particles and a quiet drink
 
 Requires Fabric Loader and Java 25. Install on the server, or locally for singleplayer; remote clients do not need it.
 
+One JAR for Minecraft 26.1, 26.1.1, 26.1.2, 26.2 and 26.3.

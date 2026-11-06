@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "name": "Villager Milk Growth Tests",
   "environment": "*",
-  "entrypoints": {
+  "entrypoints": {"main": ["dev.braian.villagermilkgrowth.ArtifactVerification"],
     "fabric-gametest": [
       "dev.braian.villagermilkgrowth.AldeanosGameTests"
     ],

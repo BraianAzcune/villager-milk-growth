@@ -12,7 +12,7 @@ def apiVersions = [
 if (!apiVersions.containsKey(minecraft_version)) {
     throw new GradleException("Unsupported test version: ${minecraft_version}")
 }
-version = "${mod_version}+mc${minecraft_version}"
+version = mod_version
 group = 'dev.braian.villagermilkgrowth'
 layout.buildDirectory = layout.projectDirectory.dir("build/${minecraft_version}")
 
@@ -23,9 +23,9 @@ dependencies {
 }
 
 processResources {
-    inputs.properties(version: project.version, minecraft: minecraft_version)
+    inputs.property("version", project.version)
     filesMatching('fabric.mod.json') {
-        expand version: project.version, minecraft: minecraft_version
+        expand version: project.version
     }
 }
 
@@ -70,3 +70,15 @@ jar {
 
 
 
+// Test the distributable itself, without loading freshly compiled production classes.
+if (providers.gradleProperty('testJar').isPresent()) {
+    def artifact = file(providers.gradleProperty('testJar').get())
+    sourceSets.gametest.compileClasspath -= sourceSets.main.output
+    sourceSets.gametest.runtimeClasspath = (sourceSets.gametest.runtimeClasspath - sourceSets.main.output) + files(artifact)
+    ['gameTest', 'clientGameTest'].each { name ->
+        loom.runs.named(name) {
+            systemProperties.put('villagerMilkGrowth.testJar', artifact.absolutePath)
+            systemProperties.put('villagerMilkGrowth.testSha256', providers.gradleProperty('testSha256').get())
+        }
+    }
+}
